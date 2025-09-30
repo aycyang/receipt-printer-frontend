@@ -12,7 +12,7 @@ async function sendToPrinter(e) {
         const response = await fetch(jsonUrl, {
             method: "POST",
             headers: {"Content-Type": "application/json",},
-            body: JSON.stringify({ buffer: "abc"}),
+            body: JSON.stringify({ buffer: encodedCommand}),
         });
         if (!response.ok) {
             throw new Error(`Response status: ${response.status}`);
