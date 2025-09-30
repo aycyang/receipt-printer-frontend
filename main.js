@@ -4,12 +4,15 @@ async function sendToPrinter(e) {
     e.preventDefault();
     const command = textInput.value;
     console.log("sending: " + command)
+    const jsonUrl = "http://receipt.local:8000/receipt/escpos";
 
-    // TODO actually send command to printer as bytes
+    const encodedCommand = btoa(command) // encode to base 64
+
     try {
-        const response = await fetch("https://example.org/post", {
+        const response = await fetch(jsonUrl, {
             method: "POST",
-            body: JSON.stringify({ username: "example" }),
+            headers: {"Content-Type": "application/json",},
+            body: JSON.stringify({ buffer: "abc"}),
         });
         if (!response.ok) {
             throw new Error(`Response status: ${response.status}`);
