@@ -1,5 +1,5 @@
-import { hexToBytes } from "./parse.js"
-import initialize, { render_to_html } from "./emulator/out/emulator.js"
+import { hexToBytes, rgbToBmp } from "./utils.js"
+import initialize, { render_to_html, render_to_image } from "./emulator/out/emulator.js"
 
 const jsonUrl = "http://receipt.local:8000/receipt/escpos";
 const cutUrl = "http://receipt.local:8000/receipt/cut";
@@ -58,6 +58,15 @@ function renderDocument(html) {
     documentHolder.appendChild(frame);
 }
 
+function renderImage(handle) {
+    const url = URL.createObjectURL(rgbToBmp(handle.bytes, handle.width, handle.height));
+
+    const img = document.createElement("img");
+    img.src = url;
+    img.classList.add("receipt");
+    documentHolder.appendChild(img);
+}
+
 function rerender(emulator, input) {
     let bytes;
 
@@ -72,14 +81,14 @@ function rerender(emulator, input) {
         return
     }
 
-    let handle = emulator.render(bytes);
+    let handle = emulator.render_to_image(bytes);
 
     for (let error of handle.errors) {
         renderError(error);
     }
 
-    for (let document of handle.output) {
-        renderDocument(document);
+    for (let imageHandle of handle.output) {
+        renderImage(imageHandle);
     }
 }
 
@@ -110,7 +119,14 @@ class Emulator {
     /**
      * @param {Uint8Array} bytes
      */
-    render(bytes) {
+    render_to_html(bytes) {
         return render_to_html(bytes)
+    }
+
+    /**
+     * @param {Uint8Array} bytes
+     */
+    render_to_image(bytes) {
+        return render_to_image(bytes)
     }
 }

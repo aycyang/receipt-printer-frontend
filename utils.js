@@ -121,3 +121,71 @@ export function hexToBytes(
 
     return Uint8Array.from(bytes);
 }
+
+/**
+ * Build a 24-bit uncompressed BMP from an RGB byte array.
+ * @param {Uint8Array} rgb - Bytes in [R,G,B,R,G,B,...] order, length = w*h*3.
+ * @param {number} width
+ * @param {number} height
+ * @returns {Blob} image/bmp blob
+ */
+export function rgbToBmp(rgb, width, height) {
+    if (!(rgb instanceof Uint8Array)) throw new TypeError("rgb must be Uint8Array");
+    if (rgb.length !== width * height * 3)
+        throw new RangeError(`rgb length (${rgb.length}) != width*height*3 (${width * height * 3})`);
+
+    // BMP specifics: 24bpp, rows are padded to multiples of 4 bytes, pixel order BGR,
+    // and rows are stored bottom-up for positive heights.
+    const bytesPerPixel = 3;
+    const rowStride = width * bytesPerPixel;
+    const paddedRowSize = (rowStride + 3) & ~3;            // align to 4 bytes
+    const paddingPerRow = paddedRowSize - rowStride;
+    const pixelArraySize = paddedRowSize * height;
+
+    const FILE_HEADER_SIZE = 14;
+    const DIB_HEADER_SIZE = 40; // BITMAPINFOHEADER
+    const offBits = FILE_HEADER_SIZE + DIB_HEADER_SIZE;
+    const fileSize = offBits + pixelArraySize;
+
+    const buf = new ArrayBuffer(fileSize);
+    const view = new DataView(buf);
+    const out = new Uint8Array(buf);
+
+    // ---- BITMAPFILEHEADER (14 bytes) ----
+    out[0] = 0x42; // 'B'
+    out[1] = 0x4D; // 'M'
+    view.setUint32(2, fileSize, true);     // bfSize
+    view.setUint16(6, 0, true);            // bfReserved1
+    view.setUint16(8, 0, true);            // bfReserved2
+    view.setUint32(10, offBits, true);     // bfOffBits
+
+    // ---- BITMAPINFOHEADER (40 bytes) ----
+    view.setUint32(14, DIB_HEADER_SIZE, true); // biSize
+    view.setInt32(18, width, true);            // biWidth
+    view.setInt32(22, height, true);           // biHeight (positive => bottom-up)
+    view.setUint16(26, 1, true);               // biPlanes
+    view.setUint16(28, 24, true);              // biBitCount
+    view.setUint32(30, 0, true);               // biCompression (BI_RGB)
+    view.setUint32(34, pixelArraySize, true);  // biSizeImage
+    view.setInt32(38, 2835, true);             // biXPelsPerMeter (~72 DPI)
+    view.setInt32(42, 2835, true);             // biYPelsPerMeter
+    view.setUint32(46, 0, true);               // biClrUsed
+    view.setUint32(50, 0, true);               // biClrImportant
+
+    // ---- Pixel data (BGR, bottom-up, padded rows) ----
+    let dst = offBits;
+    for (let y = height - 1; y >= 0; y--) {
+        const srcRowStart = y * width * 3;
+        for (let x = 0; x < width; x++) {
+            const si = srcRowStart + x * 3;
+            const r = rgb[si], g = rgb[si + 1], b = rgb[si + 2];
+            out[dst++] = b;
+            out[dst++] = g;
+            out[dst++] = r;
+        }
+        // row padding
+        for (let p = 0; p < paddingPerRow; p++) out[dst++] = 0;
+    }
+
+    return new Blob([buf], { type: "image/bmp" });
+}
