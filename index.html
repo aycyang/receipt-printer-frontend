@@ -1,15 +1,20 @@
 <html>
-    <head>
-        <title>receipt printer</title>
-        <script type="text/javascript" src="main.js"></script>
-    </head>
-    <body>
-        <h1>receipt printer wysiwyg</h1>
-        <h2>Input raw ECS/POS commands</h2>
-        <form id="form">
-            <input type="textarea" name="text" id="textInput" />
-            <input type="submit" />
-        </form>
-        <p>Command to print hello: <span style="background: lightgrey">48 65 6C 6C 6F 0A 0D</span></p>
-    </body>
+
+<head>
+    <title>receipt printer</title>
+    <script src="main.js" type="module"></script>
+</head>
+
+<body>
+    <h1>receipt printer wysiwyg</h1>
+    <h2>Input raw ECS/POS commands</h2>
+    <form id="form">
+        <textarea name="text" id="textInput"></textarea>
+        <input type="submit">
+    </form>
+    <p>Command to print hello: <code style="background: lightgrey">48 65 6C 6C 6F 0A 0D</code></p>
+    <div id="errorHolder"></div>
+    <div id="documentHolder"></div>
+</body>
+
 </html>

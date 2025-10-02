@@ -1,47 +1,18 @@
-let textInput;
+import { hexToBytes } from "./parse.js"
+import initialize, { render_to_html } from "./emulator/out/emulator.js"
 
-async function sendToPrinter(e) {
-    e.preventDefault();
-    const command = textInput.value;
-    console.log("sending: " + command)
-    const jsonUrl = "http://receipt.local:8000/receipt/escpos";
-    const cutUrl = "http://receipt.local:8000/receipt/cut";
+const jsonUrl = "http://receipt.local:8000/receipt/escpos";
+const cutUrl = "http://receipt.local:8000/receipt/cut";
 
-    const hexMap = {
-        '0': 0,
-        '1': 1,
-        '2': 2,
-        '3': 3,
-        '4': 4,
-        '5': 5,
-        '6': 6,
-        '7': 7,
-        '8': 8,
-        '9': 9,
-        'a': 10,
-        'b': 11,
-        'c': 12,
-        'd': 13,
-        'e': 14,
-        'f': 15,
-    }
-    const bytes = command.split(" ").map(x => {
-        // assume x is two characters
-        const first = x[0].toLowerCase()
-        const second = x[1].toLowerCase()
-        return hexMap[first] * 16 + hexMap[second]
-    })
-    console.log("bytes: " + bytes)
-    const encodedBytes = new Uint8Array(bytes)
-    console.log("encodedBytes: " + encodedBytes)
-
-    // hello: 48 65 6C 6C 6F 0a 0d
-
+/**
+ * @param {Uint8Array} value 
+ */
+async function sendToPrinter(value) {
     try {
         const response = await fetch(jsonUrl, {
             method: "POST",
-            headers: {"Content-Type": "application/json",},
-            body: JSON.stringify({ buffer: encodedBytes.toBase64()}),
+            headers: { "Content-Type": "application/json", },
+            body: JSON.stringify({ buffer: value.toBase64() }),
         });
         if (!response.ok) {
             throw new Error(`Response status: ${response.status}`);
@@ -63,11 +34,83 @@ async function sendToPrinter(e) {
     }
 }
 
-function init() {
-    document.getElementById("form").addEventListener("submit", sendToPrinter);
-    textInput = document.getElementById("textInput");
+function renderError(error) {
+    let holder = document.createElement("div");
+    holder.classList.add("error");
+    let span = document.createElement("span");
+
+    span.innerText = error;
+
+    holder.appendChild(span);
+    errorHolder.appendChild(holder);
 }
 
-document.addEventListener("DOMContentLoaded", () => {
-    init();
+function renderDocument(html) {
+    console.log(html);
+
+    let uri = "data:text/html;charset=utf-8," + encodeURIComponent(html);
+    let frame = document.createElement("iframe");
+    frame.src = uri;
+
+    frame.width = "1000px";
+    frame.height = "1000px";
+
+    documentHolder.appendChild(frame);
+}
+
+function rerender(emulator, input) {
+    let bytes;
+
+    // clear holders
+    errorHolder.innerHTML = "";
+    documentHolder.innerHTML = "";
+
+    try {
+        bytes = hexToBytes(textInput.value);
+    } catch (err) {
+        renderError(String(err));
+        return
+    }
+
+    let handle = emulator.render(bytes);
+
+    for (let error of handle.errors) {
+        renderError(error);
+    }
+
+    for (let document of handle.output) {
+        renderDocument(document);
+    }
+}
+
+document.addEventListener("DOMContentLoaded", async () => {
+    const textInput = document.getElementById("textInput");
+
+    document.getElementById("form").addEventListener("submit", (e) => {
+        e.preventDefault();
+        sendToPrinter(hexToBytes(textInput.value));
+    });
+
+    let emulator = await Emulator.load();
+
+    textInput.addEventListener("input", () => {
+        rerender(emulator, textInput.value)
+    })
 });
+
+// Emulator hooks
+
+class Emulator {
+    static async load() {
+        await initialize();
+
+        return new Emulator;
+    }
+
+    /**
+     * @param {Uint8Array} bytes
+     */
+    render(bytes) {
+        return render_to_html(bytes)
+    }
+}
