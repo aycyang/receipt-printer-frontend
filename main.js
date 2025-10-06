@@ -2,7 +2,6 @@ import { hexToBytes, rgbToBmp } from "./utils.js"
 import initialize, { render_to_html, render_to_image } from "./emulator/out/emulator.js"
 
 const jsonUrl = "http://receipt.local:8000/receipt/escpos";
-const cutUrl = "http://receipt.local:8000/receipt/cut";
 
 /**
  * @param {Uint8Array} value 
@@ -21,16 +20,6 @@ async function sendToPrinter(value) {
         console.log(result);
     } catch (error) {
         console.error(error.message);
-    }
-
-    try {
-        const response = await fetch(cutUrl, {
-            method: "POST",
-            // headers: {"Content-Type": "application/json",},
-            // body: JSON.stringify({ buffer: encodedBytes.toBase64()}),
-        });
-    } catch (e) {
-        console.error(e)
     }
 }
 
