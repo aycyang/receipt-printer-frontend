@@ -1,28 +1,42 @@
 <html>
-
-<head>
+  <head>
     <title>receipt printer</title>
     <script type="importmap">
-        {
-            "imports": {
-                "pixi.js": "//cdn.jsdelivr.net/npm/pixi.js@^8.6.1/dist/pixi.mjs"
-            }
+      {
+        "imports": {
+          "pixi.js": "//cdn.jsdelivr.net/npm/pixi.js@^8.6.1/dist/pixi.mjs"
         }
+      }
     </script>
 
     <script type="module" src="main.js"></script>
-</head>
+  </head>
 
-<body>
+  <body>
     <h1>receipt printer</h1>
     <h2>Input raw ESC/POS commands in hexadecimal</h2>
     <form id="form">
-        <textarea name="text" id="textInput"></textarea>
-        <input type="submit">
+      <textarea name="text" id="textInput"></textarea>
+      <div>
+        <label for="image">Upload a black and white image:</label>
+        <input
+          type="file"
+          id="imageInput"
+          name="image"
+          accept=".jpg, .jpeg, .png"
+        />
+      </div>
+      <div id="imagePreview">
+        <p>No file currently selected for upload</p>
+      </div>
+      <input type="submit" />
     </form>
-    <p>Command to print hello: <code style="background: lightgrey">1B 40 48 65 6C 6C 6F 0A 0D</code></p>
+    <p>
+      Command to print hello:
+      <code style="background: lightgrey">1B 40 48 65 6C 6C 6F 0A 0D</code>
+    </p>
     <div id="errorHolder"></div>
     <div id="documentHolder"></div>
-</body>
-
+    <img id="actualImg" src="rc-logo.png" />
+  </body>
 </html>
