@@ -1,3 +1,4 @@
+import { BitmapFont, Texture } from 'pixi.js'
 import { hexToBytes, rgbToBmp } from "./utils.js"
 import initialize, { render_to_html, render_to_image } from "./emulator/out/emulator.js"
 

@@ -1,0 +1,22 @@
+{
+  "name": "receipt-printer-frontend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/aycyang/receipt-printer-frontend.git"
+  },
+  "author": "Alex Yang",
+  "license": "BSD-3-Clause",
+  "bugs": {
+    "url": "https://github.com/aycyang/receipt-printer-frontend/issues"
+  },
+  "homepage": "https://github.com/aycyang/receipt-printer-frontend#readme",
+  "dependencies": {
+    "@pixi/text-html": "^7.4.3"
+  }
+}

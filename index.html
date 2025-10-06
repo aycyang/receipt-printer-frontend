@@ -2,13 +2,20 @@
 
 <head>
     <title>receipt printer</title>
-    <script src="main.js" type="module"></script>
-    <link rel="stylesheet" href="./main.css">
+    <script type="importmap">
+        {
+            "imports": {
+                "pixi.js": "//cdn.jsdelivr.net/npm/pixi.js@^8.6.1/dist/pixi.mjs"
+            }
+        }
+    </script>
+
+    <script type="module" src="main.js"></script>
 </head>
 
 <body>
-    <h1>receipt printer wysiwyg</h1>
-    <h2>Input raw ECS/POS commands</h2>
+    <h1>receipt printer</h1>
+    <h2>Input raw ESC/POS commands in hexadecimal</h2>
     <form id="form">
         <textarea name="text" id="textInput"></textarea>
         <input type="submit">
