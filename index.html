@@ -14,6 +14,7 @@
         <form class="w-full flex-col" id="form">
           <textarea
             class="w-full min-h-200 mb-4"
+            style="text-wrap-mode:nowrap"
             name="text"
             id="textInput"
           ></textarea>
@@ -27,7 +28,7 @@
     </div>
     <p>
       Command to print hello:
-      <code style="background: lightgrey">1B 40 48 65 6C 6C 6F 0A 0D</code>
+      <pre>1B 40 48 65 6C 6C 6F 0A 0D</pre>
     </p>
 
     <div>
@@ -42,9 +43,9 @@
     <div id="imagePreview">
       <p>No file currently selected for upload</p>
     </div>
-    <div class="imageHexHolder">
-      <code id="imageHex"></code>
-    </div>
     <button id="copyImageHexBtn">copy image hex</button>
+    <div class="imageHexHolder">
+      <pre id="imageHex"></pre>
+    </div>
   </body>
 </html>
