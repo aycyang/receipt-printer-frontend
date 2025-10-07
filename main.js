@@ -124,8 +124,9 @@ function updateImagePreview(imageInput, preview) {
         console.log(event.target.width);
         console.log(event.target.height);
         var data = getImageData(event.target);
-        var hex = convertImageDataToHex(data);
-        refreshImageHex(hex);
+        var bitmap = convertRgbaToBitmap(data);
+        const escpos = escPosPrintImageCommand(bitmap, event.target.width, event.target.height, 1, 1)
+        refreshImageHex(escpos);
       });
     } else {
       para.textContent = `File name ${file.name}: Not a valid file type. Update your selection.`;
@@ -144,41 +145,84 @@ function getImageData(image) {
   return ctx.getImageData(0, 0, image.width, image.height);
 }
 
-function convertImageDataToHex(imageData) {
+function assert(cond) {
+  if (!cond) {
+    throw Error("assertion failed")
+  }
+}
+
+function escPosPrintImageCommand(bitmap, width, height, xScale, yScale) {
+  // Store the graphics data in the print buffer (raster format):
+  // https://download4.epson.biz/sec_pubs/pos/reference_en/escpos/gs_lparen_cl_fn112.html
+  assert(xScale === 1 || xScale === 2)
+  assert(yScale === 1 || yScale === 2)
+  assert(width >= 1 && width <= 2047)
+  assert(height >= 1 && (height <= 1662 && yScale === 1 || height <= 831 && yScale === 2))
+  const p = 10 + bitmap.length
+  assert(p >= 11 && p <= 65535)
+  const pL = p & 255
+  const pH = (p >> 8) & 255
+  const a = 48
+  const bx = xScale
+  const by = yScale
+  const c = 49
+  const xL = width & 255
+  const xH = (width >> 8) & 255
+  const yL = height & 255
+  const yH = (height >> 8) & 255
+  const fn112 = [29, 40, 76, pL, pH, 48, 112, a, bx, by, c, xL, xH, yL, yH].map(uint8ToHex).join(" ")
+  // Print the graphics data in the print buffer:
+  // https://download4.epson.biz/sec_pubs/pos/reference_en/escpos/gs_lparen_cl_fn50.html
+  // TODO Not sure why, but the image only appears in the print preview if
+  // there's an extra byte after the end of the print command; that's what the
+  // "00" is for. Maybe it's not necessary?
+  const fn50 = `1d 28 4c 02 00 30 32` + " 00"
+  return [fn112, bitmap.map(uint8ToHex).join(" "), fn50].join("\n")
+}
+
+function convertRgbaToBitmap(imageData) {
   var data = imageData.data;
   var width = imageData.width;
   var height = imageData.height;
-  var bits = [];
+  var bitmap = [];
   var paddedWidth = Math.floor((width + 7) / 8) * 8;
 
   for (var y = 0; y < height; y++) {
     for (var x = 0; x < paddedWidth; x++) {
       if (x >= width) {
-        bits[bits.length - 1] = bits[bits.length - 1] << 1;
+        bitmap[bitmap.length - 1] = bitmap[bitmap.length - 1] << 1;
         continue;
       }
       var r = data[y * width * 4 + x * 4]; // only use red value for now
       if (x % 8 === 0) {
-        bits.push(0);
+        bitmap.push(0);
       } else {
-        bits[bits.length - 1] = bits[bits.length - 1] << 1;
+        bitmap[bitmap.length - 1] = bitmap[bitmap.length - 1] << 1;
       }
 
       // hard split into black/white for now
       if (r < 127) {
-        bits[bits.length - 1] = bits[bits.length - 1] | 1;
+        bitmap[bitmap.length - 1] = bitmap[bitmap.length - 1] | 1;
       }
     }
   }
-  const bitArray = new Uint8Array(bits);
-  console.log("length: " + bitArray.length);
-  return bitArray.toHex();
+  return bitmap
 }
 
 function refreshImageHex(hex) {
   const imageHex = document.getElementById("imageHex");
   imageHex.innerHTML = hex;
-  // TODO: bake in command containing width/height
+}
+
+function uint8ToHex(n) {
+  if (n < 0 || n > 255) {
+    throw new Error(`not a uint8: n = ${n}`)
+  }
+  let hex = n.toString(16)
+  if (hex.length === 1) {
+    hex = '0' + hex
+  }
+  return hex
 }
 
 document.addEventListener("DOMContentLoaded", async () => {
