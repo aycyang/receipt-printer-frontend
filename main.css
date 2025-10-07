@@ -1,3 +1,45 @@
-.receipt {
-    border: 1px solid #000;
+/* custom classes */
+#documentHolder {
+  border: 1px solid #000;
+}
+
+#documentHolder p {
+  color: grey;
+  margin: 8px;
+}
+
+.imageHexHolder {
+  overflow: scroll;
+  padding: 16px;
+  border: 1px dotted black;
+}
+
+/* pseudo tailwind classes */
+.w-full {
+  width: 100%;
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.inline {
+  display: inline;
+}
+
+.p-2 {
+  padding: 8px;
+}
+
+.mr-4 {
+  margin-right: 16px;
+}
+
+.mb-4 {
+  margin-bottom: 16px;
+}
+
+.min-h-200 {
+  min-height: 200px;
 }

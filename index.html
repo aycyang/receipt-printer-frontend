@@ -10,33 +10,48 @@
     </script>
 
     <script type="module" src="main.js"></script>
+    <link href="main.css" rel="stylesheet" />
   </head>
 
   <body>
     <h1>receipt printer</h1>
     <h2>Input raw ESC/POS commands in hexadecimal</h2>
-    <form id="form">
-      <textarea name="text" id="textInput"></textarea>
-      <div>
-        <label for="image">Upload a black and white image:</label>
-        <input
-          type="file"
-          id="imageInput"
-          name="image"
-          accept=".jpg, .jpeg, .png"
-        />
+    <div class="w-full">
+      <div class="w-full flex-col mr-4 mb-4">
+        <form class="w-full flex-col" id="form">
+          <textarea
+            class="w-full min-h-200 mb-4"
+            name="text"
+            id="textInput"
+          ></textarea>
+          <input type="submit" />
+        </form>
+        <div id="errorHolder"></div>
       </div>
-      <div id="imagePreview">
-        <p>No file currently selected for upload</p>
+      <div class="w-full" id="documentHolder">
+        <p>Receipt preview will appear here</p>
       </div>
-      <input type="submit" />
-    </form>
+    </div>
     <p>
       Command to print hello:
       <code style="background: lightgrey">1B 40 48 65 6C 6C 6F 0A 0D</code>
     </p>
-    <div id="errorHolder"></div>
-    <div id="documentHolder"></div>
-    <img id="actualImg" src="rc-logo.png" />
+
+    <div>
+      <p class="inline">Upload a black and white image:</p>
+      <input
+        type="file"
+        id="imageInput"
+        name="image"
+        accept=".jpg, .jpeg, .png"
+      />
+    </div>
+    <div id="imagePreview">
+      <p>No file currently selected for upload</p>
+    </div>
+    <div class="imageHexHolder">
+      <code id="imageHex"></code>
+    </div>
+    <button id="copyImageHexBtn">copy image hex</button>
   </body>
 </html>
