@@ -1,4 +1,3 @@
-import { BitmapFont, Texture } from "pixi.js";
 import {
   hexToBytes,
   rgbToBmp,
