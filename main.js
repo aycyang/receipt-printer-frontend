@@ -228,15 +228,9 @@ document.addEventListener("DOMContentLoaded", async () => {
   const textInput = document.getElementById("textInput");
   const imageInput = document.getElementById("imageInput");
   const imagePreview = document.getElementById("imagePreview");
-  const copyBtn = document.getElementById("copyImageHexBtn");
 
   imageInput.addEventListener("change", () => {
     updateImagePreview(imageInput, imagePreview);
-  });
-
-  copyBtn.addEventListener("click", (e) => {
-    const imageHexText = document.getElementById("imageHex");
-    navigator.clipboard.writeText(imageHexText.innerHTML);
   });
 
   document.getElementById("form").addEventListener("submit", (e) => {
