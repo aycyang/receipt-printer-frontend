@@ -26,11 +26,14 @@
         <p>Receipt preview will appear here</p>
       </div>
     </div>
-    <p>
-      Command to print hello:
-      <pre>1B 40 48 65 6C 6C 6F 0A 0D</pre>
-    </p>
-
+    <h3>Common commands</h3>
+    <table>
+    <tr><td>Initialize printer</td><td>1b 40</td></tr>
+    <tr><td>Print "hello"</td><td>48 65 6c 6c 6f</td></tr>
+    <tr><td>Feed 6 lines</td><td>1b 64 06</td></tr>
+    <tr><td>Cut paper</td><td>1d 56 00</td></tr>
+    </table>
+    <h3>Image converter</h3>
     <div>
       <p class="inline">Upload a black and white image:</p>
       <input
